@@ -1,0 +1,24 @@
+# Node modules (huge files, auto-installed)
+node_modules/
+
+# Environment variables (contains secrets)
+.env
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# OS & Editor junk
+.DS_Store
+Thumbs.db
+
+# VS Code settings (optional)
+.vscode/
+
+# Build / temp files (if used later)
+dist/
+build/
+tmp/
