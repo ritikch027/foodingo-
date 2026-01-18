@@ -20,7 +20,6 @@ const RestaurantSchema = new Schema(
       maxlength: 80,
       unique: true,
       set: capitalizeWords,
-      index: true,
     },
 
     location: {
@@ -30,7 +29,6 @@ const RestaurantSchema = new Schema(
       minlength: 2,
       maxlength: 100,
       set: capitalizeWords,
-      index: true,
     },
 
     rating: {
@@ -38,15 +36,13 @@ const RestaurantSchema = new Schema(
       default: 4,
       min: 1,
       max: 5,
-      index: true,
     },
 
     deliveryTime: {
       type: Number,
       required: true,
       min: 5,
-      max: 180, // minutes
-      index: true,
+      max: 180, 
     },
 
     image: {
@@ -66,8 +62,7 @@ const RestaurantSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true, // one owner per restaurant
-      index: true,
+      unique: true, 
     },
 
     // Only store references — not full objects
@@ -77,7 +72,6 @@ const RestaurantSchema = new Schema(
           type: Schema.Types.ObjectId,
           ref: "Item",
           required: true,
-          index: true,
         },
       },
     ],

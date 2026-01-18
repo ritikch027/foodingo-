@@ -7,7 +7,6 @@ const CartItemSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Item",
       required: true,
-      index: true,
     },
     quantity: {
       type: Number,
@@ -25,8 +24,7 @@ const CartSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true, // one cart per user
-      index: true,
+      unique: true,
     },
     items: {
       type: [CartItemSchema],

@@ -19,7 +19,6 @@ const CategorySchema = new Schema(
       minlength: 2,
       maxlength: 30,
       set: capitalizeWords,
-      index: true,
     },
 
     image: {
@@ -40,7 +39,6 @@ const CategorySchema = new Schema(
   },
 );
 
-// Explicit index (important for production)
 CategorySchema.index({ category: 1 }, { unique: true });
 
 module.exports = model("Category", CategorySchema);

@@ -27,7 +27,6 @@ const UserSchema = new Schema(
       unique: true,
       lowercase: true,
       trim: true,
-      index: true,
     },
 
     phone: {
@@ -37,7 +36,6 @@ const UserSchema = new Schema(
       minlength: 8,
       maxlength: 15,
       unique: true,
-      index: true,
     },
 
     password: {
@@ -58,26 +56,22 @@ const UserSchema = new Schema(
       type: String,
       enum: ["customer", "owner", "admin"],
       default: "customer",
-      index: true,
     },
 
     restaurant: {
       type: Schema.Types.ObjectId,
       ref: "Restaurant",
       default: null,
-      index: true,
     },
 
     isBanned: {
       type: Boolean,
       default: false,
-      index: true,
     },
 
     isDeleted: {
       type: Boolean,
       default: false,
-      index: true,
     },
 
     lastLoginAt: {

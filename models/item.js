@@ -19,7 +19,6 @@ const ItemSchema = new Schema(
       minlength: 2,
       maxlength: 80,
       set: capitalizeWords,
-      index: true,
     },
 
     category: {
@@ -27,7 +26,6 @@ const ItemSchema = new Schema(
       required: true,
       trim: true,
       lowercase: true,
-      index: true,
     },
 
     price: {
@@ -65,14 +63,12 @@ const ItemSchema = new Schema(
     isVeg: {
       type: Boolean,
       default: false,
-      index: true,
     },
 
     restaurant: {
       type: Schema.Types.ObjectId,
       ref: "Restaurant",
       required: true,
-      index: true,
     },
   },
   {

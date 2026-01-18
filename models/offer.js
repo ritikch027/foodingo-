@@ -8,7 +8,6 @@ const OfferSchema = new Schema(
       trim: true,
       minlength: 3,
       maxlength: 50,
-      index: true,
     },
 
     description: {
@@ -41,7 +40,6 @@ const OfferSchema = new Schema(
     isActive: {
       type: Boolean,
       default: true,
-      index: true,
     },
   },
   {
