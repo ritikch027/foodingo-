@@ -33,7 +33,9 @@ router.get("/items/category/:categoryName", async (req, res) => {
   try {
     const category = req.params.categoryName.trim();
 
-    const items = await Item.find({ category })
+    const items = await Item.find({
+      category: new RegExp(`^${category}$`, "i"), // case-insensitive match
+    })
       .select(
         "name offerPrice image.url price discountPercent isVeg restaurant",
       )
