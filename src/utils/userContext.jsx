@@ -19,17 +19,23 @@ export const UserProvider = ({ children }) => {
 
   const [foodItems, setFoodItems] = useState([]);
 
-  const fetchCategories = useCallback(async () => {
+  const fetchCategories = async () => {
     try {
       const res = await api.get('/categories');
-      setFoodItems(res.data);
+      setFoodItems(res.data.categories);
+
+      // cache
       await AsyncStorage.setItem('categories', JSON.stringify(res.data));
     } catch (error) {
-      // Load cache if API fails
+      console.log('Category API error:', error.message);
+
+      // fallback to cache
       const cached = await AsyncStorage.getItem('categories');
-      if (cached) setFoodItems(JSON.parse(cached));
+      if (cached) {
+        setFoodItems(JSON.parse(cached));
+      }
     }
-  }, []);
+  };
 
   /* ---------------- CART ---------------- */
 
@@ -126,7 +132,7 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     checkSession();
-    fetchCategories();
+    // fetchCategories();
   }, []);
 
   return (

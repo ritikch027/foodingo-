@@ -2,12 +2,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import GenericForm from '../utils/GenericForm';
 import api from '../utils/api';
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/Feather';
+import { UserContext } from '../utils/userContext';
 
 const AddRestaurant = ({ navigation }) => {
+  const { user } = useContext(UserContext);
   const fields = [
     {
       name: 'name',
@@ -77,6 +79,7 @@ const AddRestaurant = ({ navigation }) => {
         name: name.trim(),
         location: location.trim(),
         image,
+        owner: user._id,
       };
 
       const res = await api.post('/restaurants', restaurantData, {

@@ -7,19 +7,28 @@ import api from '../utils/api';
 import Loader from '../utils/Loader';
 import Toast from 'react-native-toast-message';
 
-const CategoryItems = () => {
+const CategoryItem = () => {
   const route = useRoute();
   const { category } = route.params;
-  const [loading, setLoading] = useState(true);
   const insets = useSafeAreaInsets();
 
   const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchItemByCategory = async () => {
     try {
-      const res = await api.get(`/items/category/${category}`);
-      setItems(res.data);
+      const res = await api.get(
+        `/items/category/${encodeURIComponent(category)}`,
+      );
+
+      // ✅ sort alphabetically by name
+      // const sortedItems = (res.data.items || []).sort((a, b) =>
+      //   a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
+      // );
+
+      setItems(res.data.items || []);
     } catch (error) {
+      console.log('Category API error:', error.message);
       Toast.show({
         type: 'error',
         text1: 'Failed to load items',
@@ -34,9 +43,7 @@ const CategoryItems = () => {
     fetchItemByCategory();
   }, []);
 
-  if (loading) {
-    return <Loader />;
-  }
+  if (loading) return <Loader />;
 
   return (
     <View style={styles.container}>
@@ -56,7 +63,7 @@ const CategoryItems = () => {
   );
 };
 
-export default CategoryItems;
+export default CategoryItem;
 
 /* ---------------- STYLES ---------------- */
 

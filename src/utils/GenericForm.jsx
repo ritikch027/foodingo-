@@ -22,7 +22,13 @@ import ImagePickerComponent from './ImagePicker';
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
-const GenericForm = ({ fields, onSubmit, submitLabel, headingTxt }) => {
+const GenericForm = ({
+  fields,
+  onSubmit,
+  submitLabel,
+  headingTxt,
+  footerLink,
+}) => {
   const insets = useSafeAreaInsets();
 
   const [formData, setFormData] = useState(() =>
@@ -34,7 +40,6 @@ const GenericForm = ({ fields, onSubmit, submitLabel, headingTxt }) => {
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [focusedField, setFocusedField] = useState(null);
 
   const handleChange = (name, value) => {
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -46,8 +51,9 @@ const GenericForm = ({ fields, onSubmit, submitLabel, headingTxt }) => {
 
     fields.forEach(field => {
       const value = formData[field.name];
+
       if (field.required && (!value || value === '')) {
-        newErrors[field.name] = 'This field is required';
+        newErrors[field.name] = 'Required field';
       }
     });
 
@@ -56,14 +62,7 @@ const GenericForm = ({ fields, onSubmit, submitLabel, headingTxt }) => {
   };
 
   const handleSubmit = async () => {
-    if (!validate()) {
-      Toast.show({
-        type: 'error',
-        text1: 'Missing Fields',
-        text2: 'Please fill all required fields',
-      });
-      return;
-    }
+    if (!validate()) return;
 
     setIsSubmitting(true);
     try {
@@ -100,7 +99,6 @@ const GenericForm = ({ fields, onSubmit, submitLabel, headingTxt }) => {
               ))}
             </Picker>
           </View>
-
           {errors[field.name] && (
             <Text style={styles.error}>{errors[field.name]}</Text>
           )}
@@ -140,22 +138,15 @@ const GenericForm = ({ fields, onSubmit, submitLabel, headingTxt }) => {
       >
         <Text style={styles.label}>{field.label}</Text>
 
-        <View
-          style={[
-            styles.inputRow,
-            focusedField === field.name && styles.inputFocused,
-          ]}
-        >
+        <View style={styles.inputRow}>
           <Icon name="edit-3" size={18} color="#6b7280" />
-
           <TextInput
             placeholder={field.placeholder || field.label}
             value={formData[field.name]}
             onChangeText={value => handleChange(field.name, value)}
             secureTextEntry={field.type === 'password'}
+            keyboardType={field.keyboardType || 'default'}
             style={styles.input}
-            onFocus={() => setFocusedField(field.name)}
-            onBlur={() => setFocusedField(null)}
             placeholderTextColor="#9ca3af"
           />
         </View>
@@ -170,17 +161,17 @@ const GenericForm = ({ fields, onSubmit, submitLabel, headingTxt }) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={{ flex: 1, backgroundColor: '#f9fafb' }}
+      style={{ flex: 1 }}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.container,
             { paddingBottom: insets.bottom + 120 },
           ]}
-          showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.heading}>{headingTxt}</Text>
+          {headingTxt ? <Text style={styles.heading}>{headingTxt}</Text> : null}
 
           {fields.map(renderField)}
 
@@ -189,13 +180,16 @@ const GenericForm = ({ fields, onSubmit, submitLabel, headingTxt }) => {
             disabled={isSubmitting}
             style={({ pressed }) => [
               styles.submitBtn,
-              pressed && { opacity: 0.85 },
+              pressed && { opacity: 0.8 },
             ]}
           >
             <Text style={styles.submitText}>
               {isSubmitting ? 'Submitting...' : submitLabel}
             </Text>
           </Pressable>
+
+          {/* Footer link (Login/Register switch) */}
+          {footerLink && <View style={styles.footer}>{footerLink}</View>}
         </ScrollView>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
@@ -209,6 +203,8 @@ export default GenericForm;
 const styles = StyleSheet.create({
   container: {
     padding: 20,
+    backgroundColor: '#f9fafb',
+    flexGrow: 1,
   },
 
   heading: {
@@ -221,8 +217,11 @@ const styles = StyleSheet.create({
   fieldCard: {
     backgroundColor: '#fff',
     padding: 16,
-    borderRadius: 18,
+    borderRadius: 16,
     marginBottom: 14,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
     elevation: 2,
   },
 
@@ -242,12 +241,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: '#f9fafb',
-  },
-
-  inputFocused: {
-    borderColor: '#4f46e5',
-    backgroundColor: '#eef2ff',
   },
 
   input: {
@@ -267,7 +260,6 @@ const styles = StyleSheet.create({
     marginTop: 6,
     color: '#dc2626',
     fontSize: 12,
-    fontWeight: '600',
   },
 
   submitBtn: {
@@ -282,5 +274,10 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 17,
     fontWeight: '700',
+  },
+
+  footer: {
+    marginTop: 18,
+    alignItems: 'center',
   },
 });

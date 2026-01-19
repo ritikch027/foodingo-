@@ -8,6 +8,7 @@ import {
   Dimensions,
   Pressable,
 } from 'react-native';
+
 import api from './utils/api';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useEffect, useContext, useCallback } from 'react';
@@ -19,7 +20,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import RenderOffer from './components/RenderOffer';
 import { UserContext } from './utils/userContext';
 import Loader from './utils/Loader';
-import Toast from 'react-native-toast-message';
 
 import Animated, { FadeInDown, Layout } from 'react-native-reanimated';
 
@@ -27,14 +27,16 @@ const screenWidth = Dimensions.get('window').width;
 
 const Home = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-  const { user, setUser, mappedItems } = useContext(UserContext);
+  const { user, setUser, mappedItems, fetchCategories } =
+    useContext(UserContext);
+
   const totalItems = mappedItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const [loading, setLoading] = useState(true);
   const [offers, setOffers] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
 
-  /* ---------------- CACHE HELPERS ---------------- */
+  /* ---------------- CACHE ---------------- */
 
   const cacheSet = async (key, data) => {
     try {
@@ -48,54 +50,76 @@ const Home = ({ navigation }) => {
     try {
       const value = await AsyncStorage.getItem(key);
       return value ? JSON.parse(value) : null;
-    } catch (err) {
+    } catch {
       return null;
     }
   };
 
-  /* ---------------- DATA FETCH ---------------- */
+  /* ---------------- API ---------------- */
 
-  const fetchAll = async () => {
+  const fetchOffers = async () => {
     try {
-      // Load cache instantly
-      const cachedOffers = await cacheGet('offers');
-      const cachedRestaurants = await cacheGet('restaurants');
-
-      if (cachedOffers) setOffers(cachedOffers);
-      if (cachedRestaurants) setRestaurants(cachedRestaurants);
-
-      const token = await AsyncStorage.getItem('token');
-
-      const requests = [api.get('/offers'), api.get('/restaurants')];
-
-      if (token) {
-        requests.push(api.post('/userdata', { token }));
-      }
-
-      const [offersRes, restaurantsRes, userRes] = await Promise.all(requests);
-
-      setOffers(offersRes.data);
-      setRestaurants(restaurantsRes.data);
-
-      await cacheSet('offers', offersRes.data);
-      await cacheSet('restaurants', restaurantsRes.data);
-
-      if (userRes?.data?.userData) {
-        setUser(userRes.data.userData);
-      }
-    } catch (error) {
-      Toast.show({
-        type: 'error',
-        text1: 'Network Error',
-        text2: 'Unable to refresh data',
-      });
-    } finally {
-      setLoading(false);
+      const res = await api.get('/offers');
+      // console.log(res.data);
+      setOffers(res.data);
+      cacheSet('offers', res.data);
+    } catch (err) {
+      console.log('Offers API error:', err.message);
     }
   };
 
+  const fetchRestaurants = async () => {
+    try {
+      const res = await api.get('/restaurants');
+      setRestaurants(res.data);
+      cacheSet('restaurants', res.data);
+    } catch (err) {
+      console.log('Restaurants API error:', err.message);
+    }
+  };
+
+  const fetchUser = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) return;
+
+      const res = await api.get('/userdata', { token });
+      if (res.data?.user) {
+        setUser(res.data?.user);
+      }
+    } catch (err) {
+      console.log('User API error:', err.message);
+    }
+  };
+
+  /* ---------------- BOOT ---------------- */
+
   useEffect(() => {
-    fetchAll();
+    let mounted = true;
+
+    const boot = async () => {
+      try {
+        // Load cached data instantly
+        const cachedOffers = await cacheGet('offers');
+        const cachedRestaurants = await cacheGet('restaurants');
+
+        if (cachedOffers) setOffers(cachedOffers);
+        if (cachedRestaurants) setRestaurants(cachedRestaurants);
+
+        // Fetch fresh data without crashing UI
+        fetchOffers();
+        fetchRestaurants();
+        fetchUser();
+        fetchCategories();
+      } catch (err) {
+        console.log('Boot error:', err);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    boot();
+    return () => (mounted = false);
   }, []);
 
   /* ---------------- UI ---------------- */
@@ -121,7 +145,6 @@ const Home = ({ navigation }) => {
       </View>
 
       <Text style={styles.greet}>Hi {user?.name || 'Guest'} 👋</Text>
-
       <Text style={styles.heading}>Find your favourite food</Text>
 
       <View style={styles.searchBar}>
@@ -209,13 +232,13 @@ const Home = ({ navigation }) => {
 
 export default Home;
 
-/* ---------------- STYLES ---------------- */
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f9fafb',
   },
+
+  /* ---------- HEADER ---------- */
 
   headerTopRow: {
     marginHorizontal: 20,
@@ -248,7 +271,10 @@ const styles = StyleSheet.create({
     color: '#111827',
     marginTop: 24,
     marginLeft: 20,
+    marginBottom: 10,
   },
+
+  /* ---------- SEARCH ---------- */
 
   searchBar: {
     flexDirection: 'row',
@@ -270,6 +296,8 @@ const styles = StyleSheet.create({
     color: '#111827',
   },
 
+  /* ---------- RESTAURANT CARD ---------- */
+
   card: {
     backgroundColor: '#fff',
     borderRadius: 20,
@@ -277,6 +305,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     elevation: 3,
     marginHorizontal: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
   },
 
   listImg: {
@@ -294,13 +326,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
   },
 
   deliveryText: {
     color: '#fff',
     fontWeight: '600',
     fontSize: 12,
+    marginLeft: 6,
   },
 
   infoContainer: {
@@ -322,6 +354,7 @@ const styles = StyleSheet.create({
 
   locationText: {
     color: '#6b7280',
+    fontSize: 14,
   },
 
   ratingBadge: {
@@ -331,14 +364,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 10,
-    gap: 4,
   },
 
   ratingText: {
     fontSize: 12,
     fontWeight: '700',
     color: '#92400e',
+    marginLeft: 4,
   },
+
+  /* ---------- CART BADGE ---------- */
 
   badge: {
     position: 'absolute',

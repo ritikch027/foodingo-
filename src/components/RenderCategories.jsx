@@ -33,11 +33,21 @@ const RenderCategories = () => {
         </View>
 
         <Text style={styles.text} numberOfLines={2}>
-          {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
+          {item.category}
         </Text>
       </Pressable>
     </Animated.View>
   );
+
+  if (!foodItems.length) {
+    return (
+      <View
+        style={{ height: 130, justifyContent: 'center', alignItems: 'center' }}
+      >
+        <Text style={{ color: '#9ca3af' }}>Loading categories...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.wrapper}>

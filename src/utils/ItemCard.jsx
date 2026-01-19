@@ -59,9 +59,7 @@ const Items = ({ items }) => {
 
   const renderItem = useCallback(
     ({ item, index }) => {
-      const cartItem = mappedItems.find(
-        cartItem => cartItem._id === item._id,
-      );
+      const cartItem = mappedItems.find(cartItem => cartItem._id === item._id);
 
       return (
         <Animated.View
@@ -79,9 +77,7 @@ const Items = ({ items }) => {
             <View style={styles.priceRow}>
               <Text style={styles.oldPrice}>₹{item.price}</Text>
               <Text style={styles.price}>₹{item.offerPrice}</Text>
-              <Text style={styles.discount}>
-                {item.discountPercent}% OFF
-              </Text>
+              <Text style={styles.discount}>{item.discountPercent}% OFF</Text>
             </View>
 
             {cartItem ? (
