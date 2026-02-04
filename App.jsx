@@ -12,6 +12,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Login from './src/auth components/Login';
+import RestaurantItems from './src/components/RestaurantItems';
 import Register from './src/auth components/Register';
 import CategoryItem from './src/components/CategoryItem';
 import Cart from './src/components/Cart';
@@ -80,6 +81,7 @@ const AppNavigation = () => {
             <Stack.Screen name="Checkout" component={Checkout} />
             <Stack.Screen name="MyOrders" component={MyOrders} />
             <Stack.Screen name="OrderSuccess" component={OrderSuccess} />
+            <Stack.Screen name="RestaurantItems" component={RestaurantItems} />
             <Stack.Screen
               name="RestaurantOrders"
               component={RestaurantOrders}

@@ -1,15 +1,15 @@
 import React from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+// import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
 const Block = ({ style }) => <View style={[styles.block, style]} />;
 
 const HomeSkeleton = () => {
-  const insets = useSafeAreaInsets();
+  // const insets = useSafeAreaInsets();
   return (
-    <View style={[styles.container, (marginTop = insets.top)]}>
+    <View style={[styles.container]}>
       {/* Header */}
       <Block style={styles.headerLine} />
       <Block style={styles.search} />

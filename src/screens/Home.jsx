@@ -9,18 +9,18 @@ import {
   Pressable,
 } from 'react-native';
 
-import api from './utils/api';
+import api from '../utils/api';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useEffect, useContext, useCallback } from 'react';
-import RenderCategories from './components/RenderCategories';
+import RenderCategories from '../components/RenderCategories';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 // import RenderOffer from './components/RenderOffer';
-import { UserContext } from './utils/userContext';
-import Loader from './utils/Loader';
-import HomeSkeleton from './utils/HomeSkeleton';
+import { UserContext } from '../utils/userContext';
+import Loader from '../utils/Loader';
+import HomeSkeleton from '../utils/HomeSkeleton';
 
 import Animated, { FadeInDown, Layout } from 'react-native-reanimated';
 
