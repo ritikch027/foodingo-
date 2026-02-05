@@ -220,5 +220,45 @@ router.delete("/delete/:userId", authenticate, isAdmin, async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 });
+// Update profile image
+router.put("/update-profile-image", authenticate, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { image_url } = req.body;
+
+    if (!image_url) {
+      return res.status(400).json({
+        success: false,
+        message: "Image URL is required",
+      });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { image_url },
+      { new: true, runValidators: true },
+    ).lean();
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    delete updatedUser.password;
+
+    res.json({
+      success: true,
+      user: updatedUser,
+    });
+  } catch (err) {
+    console.error("Update profile image error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update profile image",
+    });
+  }
+});
 
 module.exports = router;
