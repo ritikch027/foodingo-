@@ -116,7 +116,7 @@ const searchItems = async (req, res) => {
     const [items, total] = await Promise.all([
       Item.find(filter)
         .select(
-          "name offerPrice image.url price discountPercent isVeg restaurant category",
+          "_ name offerPrice image.url price discountPercent isVeg restaurant category",
         )
         .sort(sortBy)
         .skip(skip)
@@ -148,7 +148,7 @@ const getItemsByCategory = async (req, res) => {
     const items = await Item.find({
       category: new RegExp(`^${category}$`, "i"),
     })
-      .select("name offerPrice image.url price discountPercent isVeg restaurant")
+      .select("_id name offerPrice image.url price discountPercent isVeg restaurant")
       .lean();
 
     res.json({ success: true, items });
@@ -169,7 +169,7 @@ const getItemsByRestaurant = async (req, res) => {
     }
 
     const items = await Item.find({ restaurant: restaurantId })
-      .select("name offerPrice image.url price discountPercent isVeg restaurant")
+      .select("_id name offerPrice image.url price discountPercent isVeg restaurant")
       .sort({ name: 1 })
       .lean();
 
@@ -190,7 +190,7 @@ const getItemById = async (req, res) => {
 
     const item = await Item.findById(itemId)
       .select(
-        "name offerPrice image.url price discountPercent isVeg restaurant category",
+        "_id name offerPrice image.url price discountPercent isVeg restaurant category",
       )
       .lean();
 
