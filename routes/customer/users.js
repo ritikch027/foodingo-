@@ -11,7 +11,10 @@ const {
   getUserData,
   updateProfileImage,
 } = require("../../controllers/customer/userController");
-const { getAllUsers, deleteUser } = require("../../controllers/admin/userController");
+const {
+  getAllUsers,
+  deleteUser,
+} = require("../../controllers/admin/userController");
 
 const registerLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -28,7 +31,7 @@ const loginLimiter = rateLimit({
 });
 
 router.get("/users", authenticate, isAdmin, getAllUsers);
-router.post("/register", register);
+router.post("/register", registerLimiter, register);
 router.post("/login-user", loginLimiter, loginUser);
 router.get("/userdata", authenticate, getUserData);
 router.delete("/delete/:userId", authenticate, isAdmin, deleteUser);

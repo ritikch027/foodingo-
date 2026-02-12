@@ -5,15 +5,20 @@ const Cart = require("../../models/cart");
 const Joi = require("joi");
 
 const registerSchema = Joi.object({
-  name: Joi.string().min(2).max(50).required(),
-  email: Joi.string().email().required(),
-  phone: Joi.string().min(8).max(15).required(),
+  name: Joi.string().trim().min(2).max(50).required(),
+  email: Joi.string().trim().email().required(),
   password: Joi.string().min(8).max(64).required(),
+  phone: Joi.string().trim().min(8).max(15).required(),
 });
 
 const register = async (req, res) => {
   try {
-    const { error } = registerSchema.validate(req.body);
+    const { value, error } = registerSchema.validate(req.body, {
+      abortEarly: true,
+      allowUnknown: true,
+      stripUnknown: true,
+    });
+
     if (error) {
       return res.status(400).json({
         success: false,
@@ -21,15 +26,20 @@ const register = async (req, res) => {
       });
     }
 
-    let { name, email, phone, password } = req.body;
+    let { name, email, phone, password } = value;
 
     email = email.toLowerCase().trim();
+    phone = phone.trim();
 
-    const existingUser = await User.findOne({ email }).lean();
+    const existingUser = await User.findOne({
+      $or: [{ email }, { phone }],
+    }).lean();
+
     if (existingUser) {
+      const duplicateField = existingUser.email === email ? "email" : "phone";
       return res.status(400).json({
         success: false,
-        message: "User already exists",
+        message: `User already exists with this ${duplicateField}`,
       });
     }
 
@@ -51,6 +61,15 @@ const register = async (req, res) => {
     });
   } catch (err) {
     console.error("Register error:", err);
+
+    if (err?.code === 11000) {
+      const duplicateField = Object.keys(err.keyPattern || {})[0] || "field";
+      return res.status(400).json({
+        success: false,
+        message: `User already exists with this ${duplicateField}`,
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: "Registration failed",
