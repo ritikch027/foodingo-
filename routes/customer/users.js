@@ -28,7 +28,7 @@ const loginLimiter = rateLimit({
 });
 
 router.get("/users", authenticate, isAdmin, getAllUsers);
-router.post("/register", registerLimiter, register);
+router.post("/register", register);
 router.post("/login-user", loginLimiter, loginUser);
 router.get("/userdata", authenticate, getUserData);
 router.delete("/delete/:userId", authenticate, isAdmin, deleteUser);
