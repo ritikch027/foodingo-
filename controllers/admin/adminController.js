@@ -14,10 +14,10 @@ const getAdmins = async (req, res) => {
 const handleBan = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { action, isBanned } = req.body;
+    const { isBanned } = req.body;
 
-    let normalizedAction = action;
-    if (!normalizedAction && typeof isBanned === "boolean") {
+    let normalizedAction;
+    if ( typeof isBanned === "boolean") {
       normalizedAction = isBanned ? "ban" : "unban";
     }
 
