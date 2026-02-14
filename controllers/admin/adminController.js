@@ -14,19 +14,24 @@ const getAdmins = async (req, res) => {
 const handleBan = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { action } = req.body;
+    const { action, isBanned } = req.body;
 
-    if (!userId || !action) {
+    let normalizedAction = action;
+    if (!normalizedAction && typeof isBanned === "boolean") {
+      normalizedAction = isBanned ? "ban" : "unban";
+    }
+
+    if (!userId || !normalizedAction) {
       return res
         .status(400)
-        .json({ message: "User ID and action are required" });
+        .json({ message: "User ID and action (or isBanned) are required" });
     }
 
     const user = await User.findById(userId);
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (action === "ban") {
+    if (normalizedAction === "ban") {
       if (user.isBanned) {
         return res.status(400).json({ message: "User is already banned" });
       }
@@ -36,7 +41,7 @@ const handleBan = async (req, res) => {
       return res.status(200).json({ message: "User banned successfully" });
     }
 
-    if (action === "unban") {
+    if (normalizedAction === "unban") {
       if (!user.isBanned) {
         return res.status(400).json({ message: "User is already unbanned" });
       }

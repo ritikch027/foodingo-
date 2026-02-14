@@ -3,7 +3,7 @@ const User = require("../../models/user");
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.find()
-      .select("name email phone role isBanned lastLoginAt createdAt")
+      .select("_id name email phone role isBanned lastLoginAt createdAt")
       .lean();
     res.status(200).json({ success: true, users });
   } catch (err) {
