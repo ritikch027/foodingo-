@@ -32,6 +32,12 @@ const handleBan = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     if (normalizedAction === "ban") {
+      if (user.role === "admin") {
+        return res
+          .status(403)
+          .json({ message: "Admins cannot ban other admins" });
+      }
+
       if (user.isBanned) {
         return res.status(400).json({ message: "User is already banned" });
       }
@@ -58,7 +64,49 @@ const handleBan = async (req, res) => {
   }
 };
 
+const updateUserRole = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { role } = req.body;
+    const allowedRoles = ["customer", "owner", "admin"];
+
+    if (!userId || !role) {
+      return res.status(400).json({ message: "User ID and role are required" });
+    }
+
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({
+        message: "Invalid role. Allowed roles: customer, owner, admin",
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (user.role === role) {
+      return res.status(200).json({ message: "User already has this role" });
+    }
+
+    user.role = role;
+    await user.save();
+
+    return res.status(200).json({
+      message: "User role updated successfully",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Server Error" });
+  }
+};
+
 module.exports = {
   getAdmins,
   handleBan,
+  updateUserRole,
 };
