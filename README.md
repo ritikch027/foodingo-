@@ -163,5 +163,62 @@ DELETE /api/delete/:userId
 
 ## Runtime Notes
 
+<<<<<<< HEAD
 - CORS is currently locked to `http://localhost:3000` in `index.js`; update it for your frontend domain.
 - An API rate limiter is applied to `/api/*`.
+=======
+## 🧠 Performance Optimizations
+
+* MongoDB indexes on all high-traffic collections
+* Atomic cart updates
+* Connection pooling
+* Gzip compression
+* Lean queries
+* Role-based authorization via JWT
+* Optimized payload sizes
+
+---
+
+## 🛡 Security
+
+* Password hashing with bcrypt
+* JWT token expiration
+* Rate limiting on APIs
+* Helmet security headers
+* Request size limits
+* Role-based access
+* Admin-only protected routes
+
+---
+
+## 📈 Scalability
+
+This backend is built to scale to:
+
+* A large number of users
+* Lots of cart operations
+* High traffic browsing
+* Cloud deployment (Render)
+
+---
+
+## 🧑‍💻 Author
+
+Built by **Ritik Chauhan**
+Designed for real-world food delivery platforms.
+
+---
+
+## ⭐ Final Notes
+
+This backend is production-ready and follows modern backend engineering standards.
+
+If you're building a food delivery app, this gives you:
+
+* Speed
+* Security
+* Stability
+* Clean architecture
+
+---
+>>>>>>> a58eeea81a00071325cd12e98364f0f445eddc12
