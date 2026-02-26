@@ -1,120 +1,50 @@
-# 🍔 Foodingo Backend API
+# Foodingo Backend API
 
-A fast, secure, and scalable backend for a food delivery platform built with **Node.js, Express, MongoDB, and JWT authentication**.
+Backend for a food delivery platform built with Node.js, Express, MongoDB (Mongoose), JWT authentication, Cloudinary, and Razorpay.
 
-This backend powers:
+## Tech Stack
 
-* User authentication
-* Restaurant & item management
-* Cart system
-* Categories & offers
-* Admin panel
-* Secure role-based access
+- Node.js + Express
+- MongoDB + Mongoose
+- JWT (auth) + bcrypt (password hashing)
+- Cloudinary (image hosting)
+- Razorpay (payments)
+- Helmet, CORS, compression, rate limiting
 
-Designed for production scalability and real-world traffic.
-
----
-
-## 🚀 Tech Stack
-
-* **Node.js**
-* **Express.js**
-* **MongoDB + Mongoose**
-* **JWT Authentication**
-* **Cloudinary (image hosting)**
-* **Helmet (security)**
-* **Rate Limiting**
-* **Compression**
-* **Role-based access control (RBAC)**
-
----
-
-## 🔐 Features
-
-### Authentication
-
-* Email + password login
-* JWT-based authentication
-* Role-based access (customer, owner, admin)
-* Banned user protection
-* Secure password hashing (bcrypt)
-
-### Restaurants
-
-* Owner-managed restaurants
-* Indexed queries for fast browsing
-* Rating & delivery time support
-
-### Items
-
-* Category-based browsing
-* Restaurant-based filtering
-* Offer price auto-calculation
-* Veg/Non-veg filtering
-* Cloudinary image support
-
-### Cart System
-
-* Atomic add/remove operations
-* No duplicate items
-* Quantity increment/decrement
-* Indexed for fast access
-* Scales to large carts
-
-### Categories & Offers
-
-* Admin-controlled creation
-* Indexed queries
-* Active/inactive offers
-* Sorted responses
-
-### Security
-
-* Helmet protection
-* Rate limiting
-* Request size limits
-* JWT verification
-* CORS protection
-* Role-based authorization
-
----
-
-## 📁 Project Structure
+## Project Layout
 
 ```
-backend/
-│
-├── db.js
-├── index.js
-├── package.json
-│
-├── models/
-│   ├── user.js
-│   ├── restaurant.js
-│   ├── item.js
-│   ├── cart.js
-│   ├── categories.js
-│   └── offer.js
-│
-├── routes/
-│   ├── users.js
-│   ├── restaurants.js
-│   ├── items.js
-│   ├── cartItems.js
-│   ├── category.js
-│   ├── offers.js
-│   └── adminRoutes.js
-│
-├── middleware/
-│   ├── authenticate.js
-│   └── isAdmin.js
+.
+|- index.js
+|- db.js
+|- controllers/
+|  |- admin/
+|  |- customer/
+|  `- owner/
+|- middleware/
+|- models/
+`- routes/
+   |- admin/
+   |- customer/
+   `- owner/
 ```
 
----
+## Getting Started
 
-## ⚙️ Environment Variables
+### Prerequisites
 
-Create a `.env` file:
+- Node.js (LTS recommended)
+- MongoDB connection string (Atlas or local)
+
+### Install
+
+```bash
+npm install
+```
+
+### Environment Variables
+
+Create `.env` (do not commit it; it's already in `.gitignore`):
 
 ```env
 PORT=3000
@@ -124,31 +54,24 @@ JWT_SECRET=your_long_random_secret
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
+
+RAZORPAY_KEY_ID=your_key_id
+RAZORPAY_KEY_SECRET=your_key_secret
 ```
 
----
+Notes:
+- Use `KEY=value` with no extra spaces around `=`.
+- If you ever committed real secrets, rotate them immediately.
 
-## 📦 Installation
+### Run
+
+Development (nodemon):
 
 ```bash
-git clone https://github.com/ritikch027/foodingo.git
-cd foodingo
-npm install
+npm run dev
 ```
 
----
-
-## ▶️ Run the Server
-
-```bash
-npm start
-```
-
-Server will run on:
-
-```
-http://localhost:3000
-```
+The API listens on `http://localhost:<PORT>` (default `3000`).
 
 Health check:
 
@@ -156,120 +79,89 @@ Health check:
 GET /health
 ```
 
----
+## Auth
 
-## 🔑 Authentication
-
-All protected routes require:
+Protected endpoints require:
 
 ```
 Authorization: Bearer <JWT_TOKEN>
 ```
 
----
+## API Overview
 
-## 🛒 API Overview
+Base path: routes are mounted under `/api` (for example `/api/register`).
 
-### Auth
+### Public
+
+```
+GET    /api/categories
+GET    /api/offers
+GET    /api/restaurants
+GET    /api/items/search
+GET    /api/items/category/:categoryName
+GET    /api/items/restaurant/:restaurantId
+GET    /api/items/:itemId
+```
+
+### Customer (Auth Required)
 
 ```
 POST   /api/register
 POST   /api/login-user
 GET    /api/userdata
-```
+PUT    /api/update-profile
 
-### Cart
-
-```
 GET    /api/cart
 POST   /api/cart/add
 POST   /api/cart/increment
 POST   /api/cart/decrement
+POST   /api/cart/bulk-add
+
+POST   /api/orders/create
+GET    /api/orders/my
+
+POST   /api/payments/razorpay/order
+POST   /api/payments/razorpay/verify
 ```
 
-### Categories
-
-```
-GET    /api/categories
-POST   /api/categories        (Admin only)
-```
-
-### Items
-
-```
-GET    /api/items/category/:categoryName
-GET    /api/items/restaurant/:restaurantId
-POST   /api/items/:restaurantId      (Owner only)
-DELETE /api/items/:restaurantId/:productId (Owner only)
-```
-
-### Restaurants
+### Owner (Auth Required)
 
 ```
 POST   /api/restaurants
-GET    /api/restaurants
+PATCH  /api/restaurants/:restaurantId
+
+POST   /api/items/:restaurantId
+PATCH  /api/items/:restaurantId/:productId
+DELETE /api/items/:restaurantId/:productId
+
+GET    /api/restaurant/orders
+PATCH  /api/orders/:id/status
 ```
 
-### Offers
+### Admin (Auth Required)
 
 ```
-GET    /api/offers
-POST   /api/offers            (Admin only)
+GET    /api/admin
+GET    /api/admin/users
+PATCH  /api/admin/users/:userId/ban
+PATCH  /api/admin/users/:userId/role
+GET    /api/admin/restaurants
+DELETE /api/admin/restaurants/:restaurantId
+
+POST   /api/categories
+PATCH  /api/categories/:id
+DELETE /api/categories/:id
+
+POST   /api/offers
+PATCH  /api/offers/:id
+DELETE /api/offers/:id
+
+GET    /api/users
+GET    /api/all-users
+DELETE /api/delete/:userId
 ```
 
----
+## Runtime Notes
 
-## 🧠 Performance Optimizations
-
-* MongoDB indexes on all high-traffic collections
-* Atomic cart updates
-* Connection pooling
-* Gzip compression
-* Lean queries
-* Role-based authorization via JWT
-* Optimized payload sizes
-
----
-
-## 🛡 Security
-
-* Password hashing with bcrypt
-* JWT token expiration
-* Rate limiting on APIs
-* Helmet security headers
-* Request size limits
-* Role-based access
-* Admin-only protected routes
-
----
-
-## 📈 Scalability
-
-This backend is built to scale to:
-
-* 100k+ users
-* Millions of cart operations
-* High traffic browsing
-* Cloud deployment (Docker / AWS / Railway / Render)
-
----
-
-## 🧑‍💻 Author
-
-Built by **Foodingo Backend Team**
-Designed for real-world food delivery platforms.
-
----
-
-## ⭐ Final Notes
-
-This backend is production-ready and follows modern backend engineering standards.
-
-If you're building a food delivery app, this gives you:
-
-* Speed
-* Security
-* Stability
-* Clean architecture
-
----
+- CORS is currently locked to `http://localhost:3000` in `index.js`; update it for your frontend domain.
+- An API rate limiter is applied to `/api/*`.
